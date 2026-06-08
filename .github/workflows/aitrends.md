@@ -3,7 +3,6 @@ description: |
   This workflow runs every day and produces a 15-line summary of major AI developments from the previous 24 hours.
 
 on:
-  schedule: daily
   workflow_dispatch:
 
 secrets:

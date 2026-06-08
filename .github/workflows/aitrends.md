@@ -6,6 +6,9 @@ on:
   schedule: daily
   workflow_dispatch:
 
+secrets:
+  TAVILY_API_KEY: ${{secrets.TAVILY_API_KEY}}
+
 permissions:
   contents: read
   issues: read
@@ -16,16 +19,10 @@ network:
     - defaults
     - "*.tavily.com"
 
-tools:
-  web-fetch:
-
 mcp-servers:
-  tavily:
-    command: npx
-    args: ["-y", "@tavily/mcp"]
-    env:
-      TAVILY_API_KEY: "${{ secrets.TAVILY_API_KEY }}"
-    allowed: ["**"]
+  tavily-mcp:
+    url: https://mcp.tavily.com/mcp/?tavilyApiKey=${{secrets.TAVILY_API_KEY}}
+    allowed: ["*"]
 
 safe-outputs:
   create-issue:
@@ -48,7 +45,7 @@ All searches must be scoped to that date.
 
 ## Step 2 — Research Across Five Categories
 
-Use the Tavily MCP server and `web-search` to gather information. Execute these searches:
+Use **only** the Tavily MCP server to gather information. Execute these searches:
 
 ### A. Model Releases & Announcements
 Search: `new AI model released OR launched [yesterday's date] OpenAI Anthropic Google DeepMind Meta Mistral xAI`
@@ -126,9 +123,20 @@ announcements · hackathon results · regulatory updates
 **Scope:** Global — Americas, Europe, Asia-Pacific, Africa, Middle East
 ```
 
-## Fallback
+## Error Handling
 
-If insufficient data is found for yesterday (e.g., a weekend or holiday with minimal activity),
-still produce the best possible 15-line summary using the most recent available information,
-noting reduced activity in line 15 as the Key Takeaway. Only call `noop` if the Tavily MCP
-server is unreachable and no web search results are returned at all.
+If the Tavily MCP server is unreachable, returns an error, or fails to return usable search
+results for **any** reason, **do not attempt any fallback or alternative search method**.
+Instead, immediately abort the workflow and create a GitHub issue with:
+- **Title**: `AI Trends: FAILED — [Yesterday's Date in YYYY-MM-DD]`
+- **Body**:
+
+```
+## ⚠️ Daily AI Trends — Run Failed
+
+**Date:** [Yesterday's Date]
+**Reason:** Tavily MCP server error or no results returned.
+**Error details:** [Include any error message or status code received]
+
+No summary was produced. Please investigate the Tavily MCP connection and retry manually.
+```

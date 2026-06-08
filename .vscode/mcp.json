@@ -1,0 +1,11 @@
+{
+	"servers": {
+		"splunk-oauth-mcp": {
+			"type": "http",
+			"url": "https://skoganti-api-gateway.azure-api.net/splunk-oauth-mcp/en-US/splunkd/__raw/services/mcp",
+			"gallery": "https://skoganti-api-gateway-apic.data.eastus.azure-apicenter.ms/workspaces/default",
+			"version": "1.0"
+		}
+	},
+	"inputs": []
+}
